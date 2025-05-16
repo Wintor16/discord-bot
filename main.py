@@ -74,15 +74,6 @@ class BlackjackGame:
     def get_dealer_hand_value(self):
         return calculate_hand_value(self.dealer_hand)
 
-@bot.event
-async def on_message(message):
-    if message.author.name == "wintor16" and "kurumi galp" in message.content.lower():
-        await message.channel.send("wintor galp <3")
-    if message.author.name== "wintor16" and "miyav" in message.content.lower():
-        await message.channel.send("*~headpats*")
-
-    await bot.process_commands(message)
-
 @bot.command(name="blackjack", aliases=['bj'])
 async def blackjack(ctx, bet_amount: int):
     create_table()
