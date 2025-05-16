@@ -6,13 +6,9 @@ import sqlite3
 
 # Constants
 DECK = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11] * 4
-BOT_TOKEN = 'MTIzMTY1MzMyNTg1MDY3MzI0Mg.GtpjaA.Ko6S5hb83UEWKWiMgfnWpyUGO8CtqltOwV6Zww'
-
-# SQLite database file name
+BOT_TOKEN = 'bot-tokeni'
 DB_FILE = 'economy.db'
-# Starting balance for new players
 START_MONEY = 1000
-# Initialize Discord client with commands
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -23,19 +19,17 @@ async def on_ready():
         print(f"synced{len(synced)}command(s)")
     except Exception as e:
         print(e)
-# Helper function to calculate the total value of a hand
+        
 def calculate_hand_value(hand):
     total_value = sum(hand)
     if total_value > 21 and 11 in hand:
         total_value -= 10
     return total_value
-
-# Helper function to deal a new hand
+    
 def deal_hand():
     random.shuffle(DECK)
     return [DECK.pop(), DECK.pop()]
 
-# Helper function to create the SQLite table if it doesn't exist
 def create_table():
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -44,7 +38,7 @@ def create_table():
     conn.commit()
     conn.close()
 38
-# Helper function to get a player's balance from the database
+
 def get_balance(user_id):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -56,7 +50,6 @@ def get_balance(user_id):
     else:
         return None
 
-# Helper function to update a player's balance in the database
 def update_balance(user_id, new_balance):
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -64,7 +57,7 @@ def update_balance(user_id, new_balance):
     conn.commit()
     conn.close()
 
-# Main Blackjack game logic
+
 class BlackjackGame:
     def __init__(self, player, bet_amount):
         self.player = player
@@ -88,9 +81,8 @@ async def on_message(message):
     if message.author.name== "wintor16" and "miyav" in message.content.lower():
         await message.channel.send("*~headpats*")
 
-    # Eğer mesaj, komutlarla alakalıysa diğer eventlerin işlenmesi için bu satırı ekleyin.
     await bot.process_commands(message)
-# Command to start a new Blackjack game
+
 @bot.command(name="blackjack", aliases=['bj'])
 async def blackjack(ctx, bet_amount: int):
     create_table()
@@ -140,13 +132,12 @@ async def blackjack(ctx, bet_amount: int):
     else:
         await ctx.send(f'kumarbaz onur kazandı {game.bet_amount} kredi kaybettin.')
         balance -= game.bet_amount
-    # Ensure the balance doesn't go below 0
+
     if balance < 0:
         balance = 0
     update_balance(user_id, balance)
     await ctx.send(f'bakiyen: {balance} kredi.')
 
-# Command to start money for first-time users
 @bot.command(name='startmoney',aliases=['sm'])
 async def start_money(ctx):
     create_table()
@@ -158,7 +149,6 @@ async def start_money(ctx):
     update_balance(user_id, START_MONEY)
     await ctx.send(f'{ctx.author.mention}, başlangıç paran: {START_MONEY} kredi.')
 
-# Command to check my balance
 @bot.command(name='balance',aliases=['bal'])
 async def my_balance(ctx):
     create_table()
@@ -169,7 +159,7 @@ async def my_balance(ctx):
         update_balance(user_id, balance)
     await ctx.send(f'{ctx.author.mention}, şuanki bakiyen: {balance} kredi.')
 
-# Command to give currency to a selected user
+
 @bot.command(name='givemoney' or 'gm')
 @commands.has_permissions(administrator=True)
 async def give_currency(ctx, user: discord.Member, amount: int):
@@ -208,7 +198,7 @@ async def coin_flip(ctx, bet_amount: int, *, choice: str = 'Yazı'):
         return
 
     choices = ['yazı', 'tura']
-    choice = choice.lower()  # Make the choice lowercase
+    choice = choice.lower()  
 
     if choice not in choices:
         await ctx.send('hatalı seçim lütfen "Yazı" veya "Tura" yaz.')
@@ -228,10 +218,6 @@ async def coin_flip(ctx, bet_amount: int, *, choice: str = 'Yazı'):
     update_balance(user_id, balance)
 
     await ctx.send(f'bakiyeniz: {balance} kredi.')
-   
 
-# Remove the default help command to avoid conflict with slash command help
 bot.remove_command('help')
-
-# Run the Discord bot
 bot.run(BOT_TOKEN)
